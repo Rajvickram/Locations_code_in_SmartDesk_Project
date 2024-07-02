@@ -1,0 +1,229 @@
+OLD LOCATIONS.HTML WITHOUT GETTING ANY REFERENCE IN CAKESHAPE.HTML :---
+-------------------------------------------------------------------------------
+
+
+@{
+    ViewBag.Title = "Locations";
+}
+
+@*<h2>Locations</h2>*@
+<script>
+    $(document).ready(function () {
+        $('#btn_add').click(function () {
+            $('#view').show();
+            $('#list').hide();
+            clearForm();
+        });
+        $('#btn_close').click(function () {
+            $('#view').hide();
+            $('#list').show();
+            clearForm();
+        });
+        $('#btn_submit').click(function () {
+            if (validate()) {
+                var obj = {
+                    locationid: $("#hid_id").val(),
+                    locationname: $("#txt_locations_name").val(),
+                    locationcode: $("#txt_locations_code").val(),
+                    type: $("#sel_customer").val(),
+                    contactno: $("#txt_locations_mobile_No").val(),
+                    address: $("#txt_locations_address").val(),
+                    user: userName
+                };
+                
+                $.ajax({
+                    type: "POST",
+                    url: ServiceApiName + "setLocation",
+                    data: JSON.stringify(obj),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (op) {
+                        if (op != null) {
+                            if (op.res) {
+                                clearForm();
+                                showSuccessInfo(op.msg);
+                            }
+                            else
+                                showErrorInfo(op.msg);
+                        }
+                        else
+                            showErrorInfo("Please Try Again");
+                    },
+                    error: function (msg) { },
+                    complete: function () { }
+                });
+            }
+        });
+    });
+    
+    var clearForm = function () {
+        $(".alert").hide();
+        $('#hid_id').val('0');
+        $('#txt_locations_name').val('');
+        $('#txt_locations_code').val('');
+        $('#txt_locations_mobile_No').val('');
+        $('#txt_locations_address').val('');
+        $('#sel_type').val('0');
+        $("#chk_status").prop("checked", true);
+        $("#chk_status").trigger("change");
+    }
+
+    var loadForm = function (obj) {
+        $('#hid_id').val(obj.locationid);
+        $('#txt_locations_name').val(obj.locationname);
+        $('#txt_locations_code').val(obj.locationcode);
+        $('#txt_locations_mobile_No').val(obj.contactno);
+        $('#txt_locations_address').val(obj.address);
+        $('#sel_type').val(obj.type);
+        $("#chk_status").prop("checked", obj.status);
+        $("#chk_status").trigger("change");
+    }
+    var validate = function () {
+        $(".alert").hide();
+        $('#txt_locations_name').val($.trim($('#txt_locations_name').val()));
+        $('#txt_locations_code').val($.trim($('#txt_locations_code').val()));
+        $('#txt_locations_mobile_No').val($.trim($('#txt_locations_mobile_No').val()));
+        $('#txt_locations_address').val($.trim($('#txt_locations_address').val()));
+
+        if ($('#txt_locations_name').val() === '') {
+            showErrorInfo("Enter Location Name Here...");
+            $('#txt_locations_name').focus();
+            return false;
+        }
+
+        else if ($('#txt_locations_code').val() === '') {
+            showErrorInfo("Enter Location Code Here..");
+            $('#txt_locations_code').focus();
+            return false;
+        }
+
+        else if ($('#txt_locations_mobile_No').val() === '') {
+            showErrorInfo("Enter Mobile Number Here...");
+            $('#txt_locations_mobile_No').focus();
+            return false;
+        }
+
+        else if ($('#txt_locations_mobile_No').val().length < 10) {
+            showErrorInfo("Please Enter 10 Number Only..");
+            $('#txt_locations_mobile_No').focus();
+            return false;
+        }
+
+        else if ($('#sel_type').val() === '0') {
+            showErrorInfo("Please Select Location Type");
+            $('#sel_type').focus();
+            return false;
+        }
+
+
+        else if ($('#txt_locations_address').val() === '') {
+            showErrorInfo("Enter Address Here....");
+            $('#txt_locations_address').focus();
+            return false;
+        }
+        return true;
+    }
+</script>
+    <div id="view" class="row  hide-default">
+        <div class="col-md-12">
+            <div class="widget box">
+                <div class="widget-header">
+                    <h4><i class="icon-reorder"></i>SmartShop</h4>
+                </div>
+                <div class="widget-content">
+                    <form id="frm-value" name="frm-value" class="form-horizontal" action="#">
+                        <div class="alert alert-info fade in"><i class="icon-remove close" data-dismiss="alert"></i><span>Please Wait...</span></div>
+                        <input type="hidden" id="hid_id" value="0" />
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="col-md-5 control-label" for="locations_name">Location Name:</label>
+                                    <div class="col-md-7">
+                                        <input class="form-control" type="text" id="txt_locations_name" style="text-transform: capitalize;" name="locations_name" placeholder="Name" maxlength="20" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="col-md-5 control-label" for="locations_code">Location Code:</label>
+                                    <div class="col-md-7">
+                                        <input class="form-control" type="text" id="txt_locations_code" style="text-transform: capitalize;" name="locations_code" placeholder="Code" maxlength="50" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="col-md-5 control-label" for="locations_type">Type:</label>
+                                    <div class="col-md-7">
+                                        <select id="sel_type" name="type" class="form-control">
+                                            <option value="0">Select Type</option>
+                                            <option value="1">Shop</option>
+                                            <option value="4">Franchise</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="col-md-5 control-label" for="locations_contact-no">Contact No:</label>
+                                    <div class="col-md-7">
+                                        <input class="form-control" type="tel" id="txt_locations_mobile_No" style="text-transform: capitalize;" name="locations_contact-no" placeholder="Contact No" maxlength="10" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="col-md-5 control-label">Status :</label>
+                                    <div class="col-md-3">
+                                        <div class="make-switch" data-on-label="<i class='icon-ok'></i>" data-off-label="<i class='icon-remove'></i>">
+                                            <input type="checkbox" id="chk_status" checked class="toggle" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-6">
+                                <label class="col-md-5 control-label" for="locations_name">Address:</label>
+                                <div class="col-md-7">
+                                    <textarea id="txt_locations_address" name="location_address" rows="3" cols="1000" class="form-control" maxlength="1000" placeholder="Address" style="resize: none;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 3rem;">
+                            <button type="button" id="btn_submit" class="btn btn-primary pull-right">Save <i class="icon-save"></i></button>
+                            <button type="button" id="btn_close" class="submit btn btn-danger pull-right btn_close">Close <i class="icon-remove"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div id="list" class="row">
+    <div class="col-md-12">
+        <div class="widget box">
+            <div class="widget-header">
+                <h4><i class="icon-reorder"></i>Smart Order :: Locations  </h4>
+                <button class="btn btn-info pull-right btn-add" id="btn_add"><i class="icon-plus"></i>&nbsp;Add New</button>
+            </div>
+            <div class="widget-content">
+                <div class="row" style="margin: 5px 0px;">
+                    <table id="datatable" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr class="sticky-row">
+                                <th style="width: 5%">SNo</th>
+                                <th style="width: 40%">Location Name</th>
+                                <th style="width: 40%">Location Code</th>
+                                <th style="width: 40%">Type</th>
+                                <th style="width: 15%">Status</th>
+                                <th style="width: 15%"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="databody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
