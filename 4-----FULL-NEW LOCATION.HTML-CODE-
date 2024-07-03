@@ -13,10 +13,6 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
     var datatable = null;
     var frm = null;
 
-    $(function () {
-        frm = $("")
-    })
-
     $(document).ready(function () {
         getLocations();
         $('#btn_add').click(function () {
@@ -27,7 +23,14 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
         $('#btn_close').click(function () {
             $('#view').hide();
             $('#list').show();
+            datatable.ajax.reload();
             clearForm();
+        });
+        $('body').on('click', '.edit', function () {
+            getLocation(datatable.row($(this).parents('tr')).data());
+            $('#view').show();
+            $('#list').hide();
+            $('.alert').hide();
         });
         $('#btn_submit').click(function () {
             if (validate()) {
@@ -41,37 +44,8 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
                     status: $("#chk_status").is(":checked"),
                     user: userName
                 };
-
-                $.ajax({
-                    type: "POST",
-                    url: ServiceApiName + "setLocation",
-                    data: JSON.stringify(obj),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (op) {
-                        if (op != null) {
-                            if (op.res) {
-                                clearForm();
-                                showSuccessInfo(op.msg);
-                            }
-                            else
-                                showErrorInfo(op.msg);
-                        }
-                        else
-                            showErrorInfo("Please Try Again");
-                    },
-                    error: function (msg) { },
-                    complete: function () { }
-                });
+                setLocation(obj);
             }
-        });
-
-        $('body').on('click', '.edit', function () {
-            loadForm(datatable.row($(this).parents('tr')).data());
-            $('#view').show();
-            $('#list').hide();
-            $('.alert').hide();
-            //clearForm();
         });
     });
 
@@ -90,7 +64,7 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
                 { targets: 0, data: null, defaultContent: "" },
                 { targets: 1, data: "locationname" },
                 { targets: 2, data: "locationcode" },
-                { targets: 3, data: "type", render: function (data, type, row) { return data == 1 ? "Shop" : "Franchise"; } },
+                { targets: 3, data: "type", render: function (data, type, row) { return data == 0 ? "Shop" : "Franchise"; } },
                 { targets: 4, data: "status", render: function (data, type, row) { return data == true ? "<span class=\"label label-success label-md\">Active</span>" : "<span class=\"label label-danger label-md\">In Active</span>"; } },
                 { targets: 5, data: null, defaultContent: "<button class=\"btn btn-xs btn-primary edit margin-small\">View/Edit</button>" }
             ],
@@ -118,11 +92,48 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
             }
         });
     };
-
-    var getLocation = function () {
-        var
+    var getLocation = function (obj) {
+        $.ajax({
+            type: "POST",
+            url: ServiceApiName + "getLocation",
+            data: JSON.stringify(obj),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (op) {
+                if (op != null) {
+                    clearForm();
+                    loadForm(op);
+                }
+                else
+                    showErrorInfo("Please Try Again");
+            },
+            error: function (msg) { },
+            complete: function () { }
+        });
     }
-
+    var setLocation = function (obj) {
+        $.ajax({
+            type: "POST",
+            url: ServiceApiName + "setLocation",
+            data: JSON.stringify(obj),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (op) {
+                if (op != null) {
+                    if (op.res) {
+                        clearForm();
+                        showSuccessInfo(op.msg);
+                    }
+                    else
+                        showErrorInfo(op.msg);
+                }
+                else
+                    showErrorInfo("Please Try Again");
+            },
+            error: function (msg) { },
+            complete: function () { }
+        });
+    }
     var clearForm = function () {
         $(".alert").hide();
         $('#hid_id').val('0');
@@ -134,7 +145,6 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
         $("#chk_status").prop("checked", true);
         $("#chk_status").trigger("change");
     }
-
     var loadForm = function (obj) {
         $('#hid_id').val(obj.locationid);
         $('#txt_locations_name').val(obj.locationname);
@@ -149,6 +159,7 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
         $(".alert").hide();
         $('#txt_locations_name').val($.trim($('#txt_locations_name').val()));
         $('#txt_locations_code').val($.trim($('#txt_locations_code').val()));
+        $('#sel_type').val($.trim($('#sel_type').val()));
         $('#txt_locations_mobile_No').val($.trim($('#txt_locations_mobile_No').val()));
         $('#txt_locations_address').val($.trim($('#txt_locations_address').val()));
 
