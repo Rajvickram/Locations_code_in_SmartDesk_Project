@@ -151,7 +151,7 @@ LOCATION NAME, LOCATION CODE, TYPE, STATUS, VIEW/EDIT FULLY WORKING PROPERLY :--
         $('#txt_locations_code').val(obj.locationcode);
         $('#txt_locations_mobile_No').val(obj.contactno);
         $('#txt_locations_address').val(obj.address);
-        $('#sel_type').val(obj.type);
+        $('#sel_type').val(obj.type.toString());
         $("#chk_status").prop("checked", obj.status);
         $("#chk_status").trigger("change");
     }
